@@ -4,7 +4,7 @@ import json
 import base64
 import streamlit as st
 
-from utils import send_question
+from utils import ask_question
 
 # Constants
 QUEUE_SIZE_THRESHOLD = 3
@@ -47,13 +47,14 @@ def contact_page():
 def pdf_page():
     st.title("PDF Selector for propmts")
 
-    file_path = "dall-e_.pdf"#st.selectbox('file to upload', pdf_files)
-    with open(file_path,"rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    if st.button("Render PDF"):
+        file_path = "dall-e_.pdf"#st.selectbox('file to upload', pdf_files)
+        with open(file_path,"rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
 
-    st.markdown(pdf_display, unsafe_allow_html=True)
+        st.markdown(pdf_display, unsafe_allow_html=True)
 
     selected_text = st.text_area("Selected Text")
     if st.button("Store Text"):
@@ -70,14 +71,12 @@ def pdf_page():
 
 def question_page():
     st.title("Ask the model a question")
-    selected_text = st.text_area("Question")
-
-    if st.button("Ask"):
-        send_question(selected_text)
-        st.success("Question asked successfully!")
     
-
-
+    selected_text = st.text_area("Question")
+    if st.button("Ask"):
+        answer = ask_question(selected_text)
+        st.success("Question asked successfully!")
+        st.write(answer)
 
 # Streamlit app
 def main():
@@ -88,7 +87,7 @@ def main():
 
     if selected_page == "Home":
         pdf_page()
-    elif selected_page == "Aks a question":
+    elif selected_page == "Ask a question":
         question_page()
     elif selected_page == "Contact":
         contact_page()
