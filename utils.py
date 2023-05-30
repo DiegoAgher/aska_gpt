@@ -1,5 +1,10 @@
 import os
+import json
 import openai
+
+import pandas as pd
+
+from constants import EXAMPLE_DB_NAME
 
 
 openai.organization = os.getenv("OPENAI_ORG")
@@ -23,9 +28,30 @@ def ask_question(question, model=None, add_suffix=False):
 		response = openai.ChatCompletion.create(model=model,
 												messages = [{"role": "user",
 															 "content": question}])
+		text_response = response["choices"][0]["message"]["content"]
 	else:
 		response = openai.Completion.create(prompt=question, temperature=0.65,
 											max_tokens=240, top_p=1, frequency_penalty=0.1,
 											presence_penalty=0,
-											model=model)["choices"][0]["text"].strip(" \n")
-	return response
+											model=model)
+		text_response = response["choices"][0]["text"].strip(" \n")
+	
+	return text_response
+
+def get_example_db():
+	return pd.read_csv(EXAMPLE_DB_NAME)
+
+
+def validate_filename(filename):
+    base_name, ext = os.path.splitext(filename)
+    suffix = ""
+    count = 1
+    new_filename = filename
+    
+    while os.path.exists(new_filename):
+        new_filename = f"{base_name}_{count}{ext}"
+        count += 1
+    
+    return new_filename
+
+# Tell me about disentangled representations in the context of ML
